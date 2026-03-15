@@ -1,4 +1,4 @@
-package com.conectabairro.conectabairro;
+package com.conectabairro;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ConectabairroApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ConectabairroApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ConectabairroApplication.class, args);
+    }
 
 }
