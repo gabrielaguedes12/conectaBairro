@@ -142,15 +142,21 @@ public class Menu implements CommandLineRunner {
                 case "2":
                     System.out.println("\n--- LISTA DE USUARIOS ---");
                     try {
+                        // 1. Cria o cliente HTTP nativo do Java (prepara a ferramenta de conexao de rede)
                         HttpClient client = HttpClient.newHttpClient();
+                        // 2. Monta a requisicao: define a URL de destino (onde a API esta rodando) e o verbo HTTP (GET = buscar dados)
                         HttpRequest request = HttpRequest.newBuilder()
                                 .uri(URI.create("http://localhost:8080/v1/usuarios"))
                                 .GET()
                                 .build();
 
+                        // 3. Dispara a requisicao para a API, aguarda o processamento do servidor e converte o JSON recebido em uma String (texto)
                         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
                         if (response.statusCode() == 200) {
+                            // O ObjectMapper (da biblioteca Jackson) pega o texto JSON puro que veio do servidor
+                            // e converte automaticamente em uma Lista de objetos Java da classe Usuario.
+                            // O TypeReference serve para o Java nao perder a tipagem da lista (List<Usuario>) durante a conversao.
                             ObjectMapper mapper = new ObjectMapper();
                             List<Usuario> usuarios = mapper.readValue(response.body(), new TypeReference<List<Usuario>>(){});
 
@@ -265,6 +271,9 @@ public class Menu implements CommandLineRunner {
                     System.out.print("Valor Estimado (ex: 150.50): ");
                     String valor = scanner.nextLine().replace(",", ".");
 
+                    // Text Blocks (""") permitem escrever o corpo do JSON em multiplas linhas sem concatenar Strings.
+                    // O metodo .formatted() substitui cada %s pelas variaveis na ordem em que foram passadas,
+                    // injetando os dados digitados pelo usuario direto na estrutura JSON.
                     String jsonBody = """
                             {
                                 "titulo": "%s",
@@ -328,6 +337,10 @@ public class Menu implements CommandLineRunner {
 
                     try {
                         HttpClient client = HttpClient.newHttpClient();
+                        // Adicionamos o ?idUsuario= no final da URL (Query Parameter).
+                        // Isso envia o ID de quem esta tentando fechar a vaga para o Controller.
+                        // O back-end recebe isso no @RequestParam e usa para validar a regra de negocio
+                        // (garantir que apenas o dono da vaga tem permissao para altera-la).
                         String url = "http://localhost:8080/v1/vagas/" + idVagaFechar + "/fechar?idUsuario=" + idUsuarioFechar;
                         HttpRequest request = HttpRequest.newBuilder()
                                 .uri(URI.create(url))
