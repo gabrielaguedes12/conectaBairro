@@ -399,11 +399,11 @@ public class Menu implements CommandLineRunner {
         boolean noMenu = true;
         while (noMenu) {
             System.out.println("\n--- MODULO DE CONTRATOS (SERVICOS) ---");
-            System.out.println("1. Solicitar Servico (POST)");
-            System.out.println("2. Listar TODOS os Contratos (GET)");
-            System.out.println("3. Buscar Contrato por ID (GET)");
-            System.out.println("4. Orcar Servico - Visao do Prestador (PUT)");
-            System.out.println("5. Aceitar Orcamento - Visao do Consumidor (PUT)");
+            System.out.println("1. Solicitar Servico");
+            System.out.println("2. Listar TODOS os Contratos");
+            System.out.println("3. Buscar Contrato por ID");
+            System.out.println("4. Orcar Servico - Visao do Prestador");
+            System.out.println("5. Aceitar Orcamento - Visao do Consumidor");
             System.out.println("0. Voltar ao Menu Principal");
             System.out.print("Escolha: ");
 
@@ -457,7 +457,14 @@ public class Menu implements CommandLineRunner {
                                     String nomeConsumidor = c.has("consumidor") && !c.get("consumidor").isNull() ? c.get("consumidor").get("nome").asText() : "N/A";
                                     String nomePrestador = c.has("prestador") && !c.get("prestador").isNull() ? c.get("prestador").get("nome").asText() : "N/A";
                                     String valor = c.has("valorAcordado") && !c.get("valorAcordado").isNull() ? "R$ " + c.get("valorAcordado").asText() : "Pendente";
-                                    String status = c.has("status") ? c.get("status").asText() : "N/A";
+
+                                    // Verificacao dupla para o nome do campo de status
+                                    String status = "N/A";
+                                    if (c.has("statusContrato") && !c.get("statusContrato").isNull()) {
+                                        status = c.get("statusContrato").asText();
+                                    } else if (c.has("status") && !c.get("status").isNull()) {
+                                        status = c.get("status").asText();
+                                    }
 
                                     System.out.printf("%-5s | %-15s | %-15s | %-10s | %-15s\n",
                                             c.get("id").asText(), nomeConsumidor, nomePrestador, valor, status);
@@ -494,7 +501,10 @@ public class Menu implements CommandLineRunner {
                             System.out.println("Prestador: " + (c.has("prestador") ? c.get("prestador").get("nome").asText() : "N/A"));
                             System.out.println("Demanda: " + c.get("descricaoDemanda").asText());
                             System.out.println("Valor Acordado: R$ " + (c.has("valorAcordado") && !c.get("valorAcordado").isNull() ? c.get("valorAcordado").asText() : "Nao definido"));
-                            System.out.println("Status: " + c.get("status").asText());
+
+                            // Verificacao dupla do status aqui tambem
+                            String status = c.has("statusContrato") ? c.get("statusContrato").asText() : (c.has("status") ? c.get("status").asText() : "N/A");
+                            System.out.println("Status: " + status);
                         } else {
                             System.out.println("Contrato nao encontrado (Status " + response.statusCode() + ").");
                         }
@@ -519,7 +529,8 @@ public class Menu implements CommandLineRunner {
                     System.out.print("Digite o ID do Contrato que voce deseja aceitar: ");
                     String idContratoAceitar = scanner.nextLine();
 
-                    String urlAceitar = "http://localhost:8080/v1/contratos/" + idContratoAceitar + "/aceitar";
+                    // URL atualizada com a rota que voce definiu no back-end
+                    String urlAceitar = "http://localhost:8080/v1/contratos/" + idContratoAceitar + "/responder?aceito=true";
                     enviarRequisicao(urlAceitar, "PUT", "");
                     break;
 
